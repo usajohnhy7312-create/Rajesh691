@@ -17,20 +17,8 @@
             display: flex;
             flex-direction: column;
         }
-
-        #header {
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-        }
-
-        #game-container {
-            flex-grow: 1;
-            position: relative;
-        }
-
+        #header { padding: 20px; z-index: 10; }
+        #game-container { flex-grow: 1; position: relative; }
         #catch-button {
             position: absolute;
             top: 50%;
@@ -45,11 +33,8 @@
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.2s ease;
-            white-space: nowrap;
             box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
         }
-
-        /* Win Modal */
         #win-modal {
             position: fixed;
             top: 0;
@@ -63,25 +48,22 @@
             justify-content: center;
             z-index: 100;
         }
-
         .modal-content {
             background: #1e293b;
-            padding: 40px;
+            padding: 30px;
             border-radius: 20px;
             text-align: center;
             border: 2px solid #334155;
             max-width: 90%;
         }
-
         .victory-image {
-            width: 200px;
-            height: 200px;
-            object-cover: cover;
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
             border-radius: 15px;
             margin: 20px 0;
             border: 4px solid #eab308;
         }
-
         #play-again {
             padding: 12px 25px;
             background: white;
@@ -90,31 +72,21 @@
             border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 16px;
-        }
-
-        .score-board {
-            background: rgba(30, 41, 59, 0.8);
-            padding: 8px 15px;
-            border-radius: 20px;
-            border: 1px solid #334155;
         }
     </style>
 </head>
 <body>
 
     <audio id="bg-music" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        <source src="ReelAudio-4883.mp3" type="audio/mpeg">
     </audio>
     <audio id="win-sound">
-        <source src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" type="audio/mpeg">
+        <source src="Voicemod Soundboard - fahh normal.mp4" type="audio/mp4">
     </audio>
 
     <div id="header">
-        <div>
-            <h1 style="margin:0; color: #ec4899;">Catch Me!</h1>
-            <div class="score-board">Attempts: <span id="attempts">0</span></div>
-        </div>
+        <h1 style="margin:0; color: #ec4899;">Catch Me!</h1>
+        <p>Attempts: <span id="attempts">0</span></p>
     </div>
 
     <div id="game-container">
@@ -125,7 +97,7 @@
         <div class="modal-content">
             <h1 style="color: #eab308; margin-top: 0;">You Won!</h1>
             
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=winner" alt="Victory" class="victory-image">
+            <img src="127828206.jpg" alt="Victory" class="victory-image">
             
             <p>You caught the uncatchable!</p>
             <button id="play-again">Play Again</button>
@@ -143,14 +115,11 @@
         let attempts = 0;
         let gameWon = false;
 
-        // Button move karne ka function
         function moveButton() {
             if (gameWon) return;
-            
             attempts++;
             attemptsDisplay.innerText = attempts;
 
-            // 10% chance to win randomly
             if (Math.random() < 0.10) {
                 handleWin();
                 return;
@@ -162,50 +131,29 @@
             btn.style.left = `${x}px`;
             btn.style.top = `${y}px`;
 
-            // Start music on first move (browser restriction handles this)
             bgMusic.play().catch(() => {});
         }
 
-        // Jeetne ka function
         function handleWin() {
             gameWon = true;
             modal.style.display = 'flex';
-            
-            // Audio switch
             bgMusic.pause();
             winSound.currentTime = 0;
             winSound.play();
-
-            // Confetti effect
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         }
 
-        // Events
         btn.addEventListener('mouseover', moveButton);
-        btn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            moveButton();
-        });
-
-        // Agar galti se click ho jaye
+        btn.addEventListener('touchstart', (e) => { e.preventDefault(); moveButton(); });
         btn.addEventListener('click', handleWin);
 
-        // Reset game
         playAgainBtn.addEventListener('click', () => {
             gameWon = false;
             attempts = 0;
             attemptsDisplay.innerText = attempts;
             modal.style.display = 'none';
-            
-            // Reset position
             btn.style.top = '50%';
             btn.style.left = '50%';
-
-            // Music restart
             winSound.pause();
             bgMusic.play();
         });

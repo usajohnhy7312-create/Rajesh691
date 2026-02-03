@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch Me If You Can</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0f172a;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        #game-container {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        #catch-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(45deg, #ef4444, #f97316);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Win Modal */
+        #win-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid #334155;
+            max-width: 90%;
+        }
+
+        .victory-image {
+            width: 200px;
+            height: 200px;
+            object-cover: cover;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 4px solid #eab308;
+        }
+
+        #play-again {
+            padding: 12px 25px;
+            background: white;
+            color: black;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .score-board {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #334155;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="win-sound">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="header">
+        <div>
+            <h1 style="margin:0; color: #ec4899;">Catch Me!</h1>
+            <div class="score-board">Attempts: <span id="attempts">0</span></div>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <button id="catch-button">Catch Me!</button>
+    </div>
+
+    <div id="win-modal">
+        <div class="modal-content">
+            <h1 style="color: #eab308; margin-top: 0;">You Won!</h1>
+            
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=winner" alt="Victory" class="victory-image">
+            
+            <p>You caught the uncatchable!</p>
+            <button id="play-again">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('catch-button');
+        const modal = document.getElementById('win-modal');
+        const playAgainBtn = document.getElementById('play-again');
+        const attemptsDisplay = document.getElementById('attempts');
+        const bgMusic = document.getElementById('bg-music');
+        const winSound = document.getElementById('win-sound');
+
+        let attempts = 0;
+        let gameWon = false;
+
+        // Button move karne ka function
+        function moveButton() {
+            if (gameWon) return;
+            
+            attempts++;
+            attemptsDisplay.innerText = attempts;
+
+            // 10% chance to win randomly
+            if (Math.random() < 0.10) {
+                handleWin();
+                return;
+            }
+
+            const x = Math.random() * (window.innerWidth - btn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - btn.offsetHeight - 100) + 80;
+
+            btn.style.left = `${x}px`;
+            btn.style.top = `${y}px`;
+
+            // Start music on first move (browser restriction handles this)
+            bgMusic.play().catch(() => {});
+        }
+
+        // Jeetne ka function
+        function handleWin() {
+            gameWon = true;
+            modal.style.display = 'flex';
+            
+            // Audio switch
+            bgMusic.pause();
+            winSound.currentTime = 0;
+            winSound.play();
+
+            // Confetti effect
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        // Events
+        btn.addEventListener('mouseover', moveButton);
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moveButton();
+        });
+
+        // Agar galti se click ho jaye
+        btn.addEventListener('click', handleWin);
+
+        // Reset game
+        playAgainBtn.addEventListener('click', () => {
+            gameWon = false;
+            attempts = 0;
+            attemptsDisplay.innerText = attempts;
+            modal.style.display = 'none';
+            
+            // Reset position
+            btn.style.top = '50%';
+            btn.style.left = '50%';
+
+            // Music restart
+            winSound.pause();
+            bgMusic.play();
+        });
+    </script>
+</body>
+</html>
